@@ -1,0 +1,73 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: laravel8-php-fpm-80
+    container_name: $APP_NAME_app
+    restart: unless-stopped
+    depends_on:
+      - webserver
+      - db
+      - redis
+    tty: true
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.0
+    container_name: $APP_NAME_db
+    restart: unless-stopped
+    tty: true
+    environment:
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_USER: '${DB_USERNAME}'
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+    networks:
+      - app-network
+
+  webserver:
+    image: nginx:stable-alpine
+    container_name: $APP_NAME_server
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - app-network
+
+  redis:
+    image: 'redis:alpine'
+    container_name: redis
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./docker/redis/data:/data
+    networks:
+      - app-network
+
+  adminer_ui:
+    container_name: $APP_NAME_adminer_ui
+    image: 'adminer:4.8.0'
+    restart: unless-stopped
+    ports:
+      - 8200
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
