@@ -1,0 +1,68 @@
+#!/bin/bash
+
+sed -i "s,LISTEN_PORT,$PORT,g" /etc/nginx/conf.d/app.conf
+
+#echo "Trying entrypoint file with args: $@"
+
+# create app user
+#if [ ! -z "$WWWUSER" ]; then
+#    usermod -u $WWWUSER root
+#fi
+#
+#if [ ! -d /.composer ]; then
+#    mkdir /.composer
+#fi
+#
+#chmod -R ugo+rw /.composer
+
+### commands in .sh
+# composer install
+#  php artisan key:generate
+#  php artisan config:clear
+#  php artisan migrate
+
+# install and lock composer packages
+echo "Installing libraries..."
+
+composer install
+
+echo "Installed Libraries"
+
+# run migrations and seed data
+php artisan cache:clear
+
+php artisan optimize:clear
+
+echo "Migrating database..."
+
+php artisan migrate
+
+echo "Database migrated successfully"
+
+# execute laravel pre-requisites
+php artisan key:generate
+
+php artisan optimize:clear
+
+php artisan config:cache
+
+# check the version of laravel framework
+LARAVEL_VERSION=$(php artisan --version)
+
+echo "The laravel version is ${LARAVEL_VERSION}"
+
+# test email
+# php /etc/php/7.4/mail.php
+
+
+# start reverse proxy
+#a2enmod proxy
+#a2enmod proxy_http
+#a2enmod rewrite
+##service apache2 start
+
+# start admin queue job
+php artisan queue:work --queue=admin &
+echo "Running queue:work..."
+# start background jobs
+/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
