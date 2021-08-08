@@ -13,3 +13,9 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+/public/credentials
+.DS_Store
+/docker/mysql/data
+/html
+supervisord.log
+supervisord.pid
