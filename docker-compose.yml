@@ -6,12 +6,12 @@ services:
       context: ./
       dockerfile: Dockerfile
     image: laravel8-php-fpm-80
-    container_name: app
+    # container_name: app
     restart: unless-stopped
     depends_on:
       - webserver
       - db
-      - u_redis
+      - redis
     tty: true
     working_dir: /var/www
     volumes:
@@ -21,7 +21,7 @@ services:
 
   db:
     image: mysql:8.0
-    container_name: db
+    # container_name: db
     restart: unless-stopped
     tty: true
     environment:
@@ -38,7 +38,7 @@ services:
 
   webserver:
     image: nginx:stable-alpine
-    container_name: server
+    # container_name: server
     restart: unless-stopped
     tty: true
     ports:
@@ -49,9 +49,9 @@ services:
     networks:
       - app-network
 
-  u_redis:
+  redis:
     image: 'redis:alpine'
-    container_name: u_redis
+    # container_name: redis
     restart: unless-stopped
     tty: true
     volumes:
@@ -59,8 +59,8 @@ services:
     networks:
       - app-network
 
-  adminer_ui:
-    container_name: adminer_ui
+  adminer:
+    # container_name: adminer
     image: 'adminer:4.8.0'
     restart: unless-stopped
     ports:
