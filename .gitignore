@@ -19,3 +19,4 @@ yarn-error.log
 /html
 supervisord.log
 supervisord.pid
+/docker/redis/data
